@@ -1,0 +1,26 @@
+---
+- name: "Playbook to install Harbor on a RHEL 7 platform"
+  hosts: all
+  vars_prompt:
+    - name: "db_password"
+      prompt: "Harbor internal database password"
+      default: "Harbor123456"
+    - name: "clair_db_password"
+      promt: "ClairDB password""
+      default: "Harbor123456"
+    - name: "harbor_admin_password"
+      promt: "Harbor web ui password"
+      default: "Harbor123456"
+  vars: 
+    - add_notary: false
+    - use_https : true
+    - generate_ssl: true
+    - harbor_install_path : "/usr/local/"
+    - harbor_offline_installer_version: 1.2.2
+    - docker_compose_version: 1.16.1
+    - harbor_email_server: mail.domain.tld
+    - harbor_email_username: harboradmin@domain.tld
+  
+  roles:
+     - prereqs_harbor
+     - install_harbor

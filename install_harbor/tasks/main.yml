@@ -1,0 +1,23 @@
+---
+- name: Unzip Harbor sources
+  unarchive:
+    src: "{{ harbor_release_url }}"
+    dest: "{{ harbor_install_path }}/"
+    remote_src: yes
+
+- name: harbor.cfg configuration
+  template:
+    src: harbor.cfg.j2
+    dest: "{{harbor_install_path}}/harbor/harbor.cfg"
+
+- name: If add_notary=false, execute install.sh
+  shell: "{{harbor_install_path}}/harbor/install.sh"
+  args:
+    chdir: "{{harbor_install_path}}/harbor/"
+  when: not add_notary
+
+- name: If add_notary=true, execute install.sh --with-notary
+  shell: "{{harbor_install_path}}/harbor/install.sh --with-notary"
+  args:
+    chdir: "{{harbor_install_path}}/harbor/"
+  when: add_notary
