@@ -2,24 +2,33 @@
 - name: Install Docker engine
   yum: name={{ item }} state=latest
   with_items:
-    - python
-    - python-pip
-    - docker-engine
+    - docker-ce
 
 - name: Start and enable docker
   systemd: name=docker state=started enabled=yes
 
 - name: Get docker-compose binary
   get_url:
-    url: https://github.com/docker/compose/releases/download/{{docker_compose_version}}/docker-compose-Linux-x86_64
+    url: https://github.com/docker/compose/releases/download/{{ docker_compose_version}}/docker-compose-Linux-x86_64
     dest: /usr/local/bin/docker-compose
-    mode=0755
+    mode: 0755
 
-- name: Add PyOpenSSL 0.15 if add_notary=true
-  pip:
-    name: PyOpenSSL
-    version: 0.15
-  when: add_notary
+#- name: Install python-pip
+## necessary if using Ansible OpenSSL module to generate CSR or selfsigned
+## not working as of today
+#  yum: name={{ item }} state=latest
+#  with_items:
+#    - python
+#    - python-pip
+#  when: generate_ssl
+
+#- name: Add PyOpenSSL 0.15 if generate_ssl 
+## necessary if using Ansible OpenSSL module to generate CSR or selfsigned
+## not working as of today
+#  pip:
+#    name: PyOpenSSL
+#    version: 0.15
+#  when: generate_ssl
 
 - name: Create necessary directory if generate_ssl=true
   file:
@@ -30,7 +39,7 @@
     - /etc/ssl/public/
     - /etc/ssl/ca/
     - /etc/ssl/csr/
-    - /etc/docker/certs.d/
+    - /etc/docker/certs.d/{{ ansible_fqdn }}/
   when: generate_ssl
 
 - name: Generate CA if generate_ssl=true
